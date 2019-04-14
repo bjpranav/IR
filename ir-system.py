@@ -84,12 +84,12 @@ def tfidf(tokens,documents,token):
     for doc in documents:
         if(token in doc):
             count+=1
-    idf=np.log(len(documents)/(count))
-    return(1+tf*idf)
+    idf=1+np.log(len(documents)/(count))
+    return(tf*idf)
     
 docs={}
 for i in range(0,len(ids)):
-    docs[i]=[title_split[i],body_split_docs[i]]
+    docs[i+1]=[title_split[i],body_split_docs[i]]
     #titleTokens=title_split[i].split()
     #titleTfIdf=tf(titleTokens,title_split)
     #bodyTokens=body_split[i].split()
@@ -136,8 +136,8 @@ def square(list):
 
 def cosineSimilarity(query,doc):
     up=np.dot(query,doc)
-    modQuery=sum(square(query))
-    docQuery=sum(square(doc))
+    modQuery=np.sqrt(sum(square(query)))
+    docQuery=np.sqrt(sum(square(doc)))
     down=modQuery*docQuery
     return(up/down)
     
@@ -167,6 +167,6 @@ for i in range(0,len(ids)):
         if(flag==1):
             results.append((ID,cosineSimilarity(queryTfIdfValList,docTfIdfValList)))
     queryResults.append(results)
-    
+
                 
     
