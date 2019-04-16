@@ -391,20 +391,6 @@ for i in range(0,len(ids)):
 ------------------------------------------
 
 
-#document tf and idf
-complete_tf=[]
-complete_idf=[]
-for i in range(1,1401):
-    x=docs[i][1].split()
-    tf = []
-    idf=[]
-    for j in x:
-        tf.append(termFrequency(j, docs[i][1]))
-        idf.append(inverseDocumentFrequency(j, docs))
-
-    complete_tf.append(tf)
-    complete_idf.append(idf)
-
 #indexing
 indexing_idf_word={}
 for i in range(1,1401):
@@ -412,14 +398,6 @@ for i in range(1,1401):
     for j in x:
         if j not in indexing_idf_word:
             indexing_idf_word[j]=inverseDocumentFrequency(j, docs)
-
-#doc_tf_idf
-complete_doc_tf_idf=[]
-for i in range(0,1400):
-    a=complete_tf[i]
-    b=complete_idf[i]
-    complete_doc_tf_idf.append(np.multiply(a,b))
-
 
 doc_query_tf=[]
 doc_query_idf=[]
@@ -508,7 +486,7 @@ for i in range(0,len(complete_list)):
     temp = temp[::-1]
     sub_final_list=[]
     for j in range(0,len(temp)):
-        if complete_list[i][temp[j]]>=0.5:
+        if complete_list[i][temp[j]]!=0:
             sub_final_list.append(temp[j]+1)
     final_list.append(sub_final_list)
 
@@ -522,4 +500,3 @@ with open('your_file2.txt', 'w') as f:
     for item in output:
         f.write("%s\n" % item)
 
-complete_list[25]
