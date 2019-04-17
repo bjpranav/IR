@@ -1,9 +1,104 @@
+'''
+Information retrieval system by team GAP.
+Team members: Ganesh Nalluru, Alagappan Alagappan, Pranav Krishna
+Date: 04/16/2019
+
+Introduction
+--------------
+This program retrives relavant documents for the given query by calculating tf-idf
+vectors for document and queries and by calculating similarity score between them.
+
+Example
+--------
+
+Query:
+    .I 001
+    .W
+    what similarity laws must be obeyed when constructing aeroelastic models
+    of heated high speed aircraft .
+
+Documents:
+    .I 184
+    .T
+    scale models for thermo-aeroelastic research .
+    .A
+    molyneux,w.g.
+    .B
+    rae tn.struct.294, 1961.
+    .W
+    scale models for thermo-aeroelastic research .
+    An investigation is made of the
+    parameters to be satisfied for
+    thermo-aeroelastic similarity .  it is concluded
+    that complete similarity obtains
+    only when aircraft and model are identical
+    in all respects, including size.
+    
+    .I 13
+    .T
+    similarity laws for stressing heated wings .
+    .A
+    tsien,h.s.
+    .B
+    j. ae. scs. 20, 1953, 1.
+    .W
+    similarity laws for stressing heated wings .
+      it will be shown that the differential equations for a heated
+    plate with large temperature gradient and for a similar plate at
+    constant temperature can be made the same by a proper
+    modification of the thickness and the loading for the isothermal plate .
+    this fact leads to the result that the stresses in the heated plate
+    can be calculated from measured strains on the unheated plate by
+    a series of relations, called the /similarity laws .
+    
+Output:
+-------
+    Query Number Document Order
+        1           13
+        1           184
+    
+(Document length has been shortened for brevity)
+
+Usage Instructions
+------------------
+
+Windows
+-------
+1.Open cmd prompt, navigate to the location where the python codes are stored along with query
+and document files
+
+2.Run the following command "python ir-system.py.py  cran.all.1400  cran.qry  > cran-output.txt",
+this creates a text file, "cran-output.txt" consists of query indices and relevant documet indices
+
+3.Run the following command "python precision_recall.py cran-output.txt cranqrel,", this compares the result generated
+by the program with the given key .
+
+4.Based on the comparison a file with precision and recall numbers is created with name
+mylogfile.txt.
+
+Linux
+-----
+Follow the same steps as above, instead of command prompt use terminal to run the above commands.
+
+
+Algorithm:
+    Extract title, index  and body from the documets
+    Preprocess the documents to remove stop words
+    Find TF-IDF of each word in the title of the document
+    Find TF of each word in the query
+    Find similarity score between query and document
+    Store the results with the descending order of similarity score
+'''
+
+
+
+#Importing necessary libraries
 import numpy as np
 
 #content = r"D:\bin\AIT-690\Assignments\IR\cran.all.1400"
 content = r"C:\Users\alaga\Desktop\sem 2\AIT690\IR1\cran.all.1400"
 
-#docfile
+#Preprocessing docfile to extract index, title and body seperately
 content=open(content)
 content=content.read()
 content = content.replace("\n", "")
@@ -14,7 +109,7 @@ content=content.replace("-"," - ")
 
 
 #temp=word_tokenize(content)
-
+#Removing stop words
 con_split=content.split()
 from nltk.corpus import stopwords
 stop_words = set(stopwords.words('english'))
@@ -75,6 +170,8 @@ body_split=' '
 body_split=body_split.join(body)
 body_split_docs=body_split.split('**')
 
+#Store docs as key value pairs with ids as keys and the document and their title as 
+#values
 docs={}
 for i in range(0,len(ids)):
     docs[i+1]=[title_split[i],body_split_docs[i]]
@@ -86,7 +183,7 @@ for i in range(0,len(ids)):
 query = r"C:\Users\alaga\Desktop\sem 2\AIT690\IR1\cran.qry"
 #content = r"C:\Users\alaga\Desktop\sem 2\AIT690\IR1\cran.all.1400"
 
-#docfile
+#Preprocessing queries to extract indexes and body of texts 
 query=open(query)
 query=query.read()
 query = query.replace("\n", "")
@@ -133,11 +230,16 @@ body_split=' '
 body_split=body_split.join(body)
 body_split=body_split.split('**')
 
-
+#Function to calculate tf
+#@Params-term and document
+#retuens tf
 def termFrequency(term, document):
     normalizeDocument = document.lower().split()
     return normalizeDocument.count(term.lower()) / float(len(normalizeDocument))
 
+#Function to calculate idf
+#@Params-term and all documents
+#retuens idf
 def inverseDocumentFrequency(term, allDocuments):
     numDocumentsWithThisTerm = 0
     for doc in allDocuments:
@@ -152,6 +254,17 @@ def inverseDocumentFrequency(term, allDocuments):
 def square(list):
     return map(lambda x: x ** 2, list)
 
+#Function to implement jaccard similarity
+#@params-query and document
+#@Returns Jaccard similarity score
+def jaccard_similarity(list1, list2):
+    intersection = len(set(list1).intersection(list2))
+    union = (len(list1) + len(list2)) - intersection
+    return float(intersection / union)
+
+#The function finds the cosine similarity between queries and documnets
+#@params-query and document
+#returns-cosine similarity score
 def cosineSimilarity(query, doc):
     up = float(np.dot(query, doc))
     modQuery = np.sqrt(sum(square(query)))
@@ -195,39 +308,54 @@ for i in range(0,1400):
 
 doc_query_tf=[]
 doc_query_idf=[]
+total_jaccard_similarityScore=[]
+#For each query
 for i in body_split:
+    jaccard_similarityScore={}
     doc_query_word_tf = []
     doc_query_word_idf = []
+    #For each document
     for k in range(1, 1401):
         doc_query_word_doc_tf = []
         doc_query_word_doc_idf = []
+        jaccard_similarityScore[k]=jaccard_similarity(i.split(), body_split_docs[k-1].split())
+        #For each word in query
         for j in i.split():
+            #If the is in the current document
             if j in docs[k][0].split():
+                #Find and append the term frequency of the word in document to the list
                 doc_query_word_doc_tf.append(termFrequency(j, docs[k][0]))
             else:
                 doc_query_word_doc_tf.append(0)
-
+                #If the documnt has an Idf
             if j in indexing_idf_word:
+                #Find and append the idf to the list
                 doc_query_word_doc_idf.append(indexing_idf_word[j])
             else:
                 doc_query_word_doc_idf.append(0)
 
-
+        #Store all the term frequencies of the document in a list 
         doc_query_word_tf.append(doc_query_word_doc_tf)
+        #Store all the inverse document frequencies of the document in a list
         doc_query_word_idf.append(doc_query_word_doc_idf)
-
+    #Sorts the itmes based on jaccard Similarity Score
+    sorted_x = sorted(jaccard_similarityScore.items(), key=lambda kv: kv[1],reverse=True)
+    total_jaccard_similarityScore.append(sorted_x)
+    
+    #Stores all the term frequencies of the all the documents in a list 
     doc_query_tf.append(doc_query_word_tf)
+    #Stores all the inverse document frequencies of all the document in a list
     doc_query_idf.append(doc_query_word_idf)
 
 
-
+#The follwing code multiplies the term frequency with the inverse document frequency
 complete_doc_query_tf_idf=[]
 for i in range(0,len(body_split)):
     a=doc_query_tf[i]
     b=doc_query_idf[i]
     complete_doc_query_tf_idf.append(np.multiply(a,b))
 
-#term frequency of queries
+#finds term frequency of queries
 query_idf=[]
 query_tf=[]
 for i in body_split:
@@ -243,7 +371,7 @@ for i in body_split:
     query_idf.append(query_word_idf)
     query_tf.append(query_word_tf)
 
-
+#Finds the final tf-idf for queries
 complete_query_tf_idf=[]
 for i in range(0,len(body_split)):
     a=query_tf[i]
@@ -251,7 +379,8 @@ for i in range(0,len(body_split)):
     complete_query_tf_idf.append(np.multiply(a,b))
 
 
-
+#For each query finds the cosine similarity between that query
+#and all the documents and appends that to the list
 complete_list=[]
 for i in range(0,len(body_split)):
     list = []
@@ -260,7 +389,7 @@ for i in range(0,len(body_split)):
         list.append(x)
     complete_list.append(list)
 
-
+#Sorts the cosine simalrity and finds the ranking of all the documents for each query
 final_list=[]
 for i in range(0,len(complete_list)):
     temp = np.argsort(complete_list[i])
@@ -373,7 +502,11 @@ for i in range(0,len(final_list)):
     for j in final_list[i]:
         output.append(str(i+1)+' '+str(j))
 
-
+with open(r'D:\bin\AIT-690\Assignments\IR\jaccard.txt', 'w') as f:
+    for index,item in enumerate(total_jaccard_similarityScore):
+        for i in item:
+            f.write(str(index+1)+" "+str(i[0])+"\n")
+            
 with open('your_file2.txt', 'w') as f:
     for item in output:
         f.write("%s\n" % item)
