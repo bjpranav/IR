@@ -431,7 +431,7 @@ f1_score=2*((precision*recall)/(precision+recall))
 print(f1_score)
 
 
-#map
+# Mean Average Precision
 mean_average_pre=[]
 i=1
 while(i!=len(key_dic)+1):
