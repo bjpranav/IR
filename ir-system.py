@@ -1,4 +1,3 @@
-from collections import Counter
 import numpy as np
 
 #content = r"D:\bin\AIT-690\Assignments\IR\cran.all.1400"
@@ -162,6 +161,7 @@ def cosineSimilarity(query, doc):
         down=1
     return (up / down)
 
+#-------------------------------------------------
 # content_title
 #document tf and idf
 complete_tf=[]
@@ -364,7 +364,7 @@ for i in range(0,len(complete_list)):
     temp = temp[::-1]
     sub_final_list=[]
     for j in range(0,len(temp)):
-        if complete_list[i][temp[j]]>=0.6:
+        if complete_list[i][temp[j]]>=0.65:
             sub_final_list.append(temp[j]+1)
     final_list.append(sub_final_list)
 
@@ -405,25 +405,46 @@ for j in range(1,len(key),3):
 for j in range(1,len(my_output),2):
     my_dict[my_output[j-1]].append(my_output[j])
 
-
-
-count_relavant=[]
-len_returned=[]
+relevant_documents=[]
+total_documents_returned =[]
+documents_collection=[]
 i=1
 while(i!=len(key_dic)+1):
     cnt = 0
     for j in (my_dict[str(i)]):
         if j in key_dic[str(i)]:
             cnt+=1
-    count_relavant.append(cnt)
+    relevant_documents.append(cnt)
     if(len(my_dict[str(i)])==0):
-        len_returned.append(1)
+        total_documents_returned.append(1)
     else:
-        len_returned.append(len(my_dict[str(i)]))
+        total_documents_returned.append(len(my_dict[str(i)]))
+    documents_collection.append(len(key_dic[str(i)]))
+
     i += 1
 
 
+precision=np.mean(np.divide(relevant_documents,total_documents_returned))
+recall=np.mean(np.divide(relevant_documents,documents_collection))
+
+f1_score=2*((precision*recall)/(precision+recall))
+print(f1_score)
 
 
-precision=np.mean(np.divide(count_relavant,len_returned))
+#map
+mean_average_pre=[]
+i=1
+while(i!=len(key_dic)+1):
+    temp = []
+    for k in range(0, len(key_dic[str(i)])):
+        for j in range(0, len(my_dict[str(i)])):
+            if my_dict[str(i)][j] == key_dic[str(i)][k] and j >= k:
+                a = (k + 1) / (j + 1)
+                temp.append(a)
+    if(len(temp)==0):
+        mean_average_pre.append(0)
+    else:
+        mean_average_pre.append(np.mean(temp))
+    i+=1
 
+np.mean(mean_average_pre)
