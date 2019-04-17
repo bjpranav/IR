@@ -14,17 +14,27 @@ content=content.replace(".W"," .W ")
 content=content.replace("-"," - ")
 
 
-
 #temp=word_tokenize(content)
 
 con_split=content.split()
 from nltk.corpus import stopwords
 stop_words = set(stopwords.words('english'))
 
-temp= []
+tempo= []
 for w in con_split:
     if w not in stop_words:
+        tempo.append(w)
+
+
+from nltk.stem import PorterStemmer
+ps = PorterStemmer()
+temp=[]
+for w in tempo:
+    if '.A' not in w:
+        temp.append(ps.stem(w))
+    else:
         temp.append(w)
+
 cnt=0
 ids=[]
 title=[]
@@ -53,57 +63,21 @@ for i in range(0,len(temp)):
         body.append(temp[i])
 
 
-
-
 del title[0]
 title_split=' '
 title_split=title_split.join(title)
 title_split=title_split.split('.T')
+
 
 del body[0]
 body_split=' '
 body_split=body_split.join(body)
 body_split_docs=body_split.split('**')
 
-'''
-tfidf={}
-wordvec={}
-def tf(tokens,documents):
-    tfidfList=[]
-    #wordCounts = list(Counter(tokens).values)
-    tf=[i/len(tokens) for i in wordCounts]
-    for index,token in enumerate(wordCounts):
-        count=1        
-        for doc in documents:
-            if(tokens[index] in doc):
-                count+=1
-        idf=np.log(len(documents)/(count))
-        tfidfList.append(tf[index]*idf)
-    return(tfidfList)
-
-tfidf={}
-wordvec={}
-def tfidf(tokens,type):
-    tfidfList=[]
-    wordCounts = Counter(tokens)
-    tf=wordCounts[token]/len(tokens)
-    print(tf)
-
-    count=0
-    for doc in documents:
-        if(token in doc):
-            count+=1
-    idf=1+np.log(len(documents)/(count))
-    return(tf*idf)
-'''
 docs={}
 for i in range(0,len(ids)):
     docs[i+1]=[title_split[i],body_split_docs[i]]
-    #titleTokens=title_split[i].split()
-    #titleTfIdf=tf(titleTokens,title_split)
-    #bodyTokens=body_split[i].split()
-    #bodyTfIdf=tf(bodyTokens,body_split)
-    #tfidf[ids[i]]=[titleTfIdf,bodyTfIdf]
+
     
 
 #query = r"D:\bin\AIT-690\Assignments\IR\cran.qry"
@@ -120,9 +94,17 @@ query=query.replace(".W"," .W ")
 query=query.replace("-"," - ")
 
 que_split=query.split()
-temp= []
+tempo= []
 for w in que_split:
     if w not in stop_words:
+        tempo.append(w)
+
+
+temp=[]
+for w in tempo:
+    if '.A' not in w:
+        temp.append(ps.stem(w))
+    else:
         temp.append(w)
 cnt=0
 ids=[]
@@ -148,13 +130,9 @@ body_split=body_split.join(body)
 body_split=body_split.split('**')
 
 
-
-
-
 def termFrequency(term, document):
     normalizeDocument = document.lower().split()
     return normalizeDocument.count(term.lower()) / float(len(normalizeDocument))
-
 
 def inverseDocumentFrequency(term, allDocuments):
     numDocumentsWithThisTerm = 0
@@ -167,7 +145,19 @@ def inverseDocumentFrequency(term, allDocuments):
     else:
         return 1.0
 
+def square(list):
+    return map(lambda x: x ** 2, list)
 
+def cosineSimilarity(query, doc):
+    up = float(np.dot(query, doc))
+    modQuery = np.sqrt(sum(square(query)))
+    docQuery = np.sqrt(sum(square(doc)))
+    down = float(modQuery * docQuery)
+    if(down==0):
+        down=1
+    return (up / down)
+
+# content_title
 #document tf and idf
 complete_tf=[]
 complete_idf=[]
@@ -198,38 +188,6 @@ for i in range(0,1400):
     complete_doc_tf_idf.append(np.multiply(a,b))
 
 
-'''
-complete_index=[]
-for i in body_split:
-    index_query = []
-    for j in i.split():
-        index_word = []
-        for k in range(1,1401):
-
-            if j in docs[k][0].split():
-                d=docs[k][0].split().index(j)
-                index_word.append(d)
-
-            else:
-                index_word.append(-1)
-
-        index_query.append(index_word)
-    complete_index.append(index_query)
-
-
-
-
-
-for i in range(0,len(body_split)):
-    for j in range(0,len(body_split[i].split())):
-        for k in range(0,1400):
-            if complete_index[i][j][k]!=-1:
-                complete_index[i][j][k]=complete_doc_tf_idf[k][complete_index[i][j][k]]
-
-
-
-
-'''
 doc_query_tf=[]
 doc_query_idf=[]
 for i in body_split:
@@ -288,49 +246,6 @@ for i in range(0,len(body_split)):
     complete_query_tf_idf.append(np.multiply(a,b))
 
 
-'''
-
-complete_query_idf=[]
-idf=[]
-for i in range(0,len(body_split)):
-    query_idf = []
-    for j in range(0,len(body_split[i].split())):
-        temp=[]
-        for k in range(0,1400):
-            if complete_index[i][j][k]!=0:
-                idf=complete_index[i][j][k]
-            else:
-                idf=0
-            temp.append(idf)
-        query_idf.append(max(temp))
-    complete_query_idf.append(query_idf)
-
-
-
-complete_query_tf_idf=[]
-for i in range(0,len(body_split)):
-    a=np.array(complete_tf[i])
-    b=np.array(complete_idf[i])
-
-    complete_query_tf_idf.append(a*b)
-'''
-
-
-
-def square(list):
-    return map(lambda x: x ** 2, list)
-
-
-def cosineSimilarity(query, doc):
-    up = float(np.dot(query, doc))
-    modQuery = np.sqrt(sum(square(query)))
-    docQuery = np.sqrt(sum(square(doc)))
-    down = float(modQuery * docQuery)
-    if(down==0):
-        down=1
-    return (up / down)
-
-
 
 complete_list=[]
 for i in range(0,len(body_split)):
@@ -361,36 +276,8 @@ with open('your_file.txt', 'w') as f:
     for item in output:
         f.write("%s\n" % item)
 
-'''
-queries={}
-queryTfIdf={}
-counterrr=0
-queryResults=[]
-for i in range(0,len(ids)):
-    results=[]
-    queries[i]=[body_split[i]]
-    queryTokens=body_split[i].split()
-    #bodyTfIdf=tf(queryTokens,body_split)
-    for ID,doc in enumerate(docs.values()):
-        queryTfIdfValList=[]
-        docTfIdfValList=[]
-        flag=0
-        for indexVal,token in enumerate(queryTokens):
-            if(token in doc[0].split()):
-                flag=1
-                queryTfIdfVal=tfidf(queryTokens,body_split,token)
-                queryTfIdfValList.append(queryTfIdfVal)
-                docTfIdfVal=tfidf(doc[0],body_split_docs,token)
-                docTfIdfValList.append(docTfIdfVal)
-                #print(queryTfIdfVal,docTfIdfVal)
-        if(flag==1):
-            results.append((ID,cosineSimilarity(queryTfIdfValList,docTfIdfValList)))
-    queryResults.append(results)
-
- '''
-------------------------------------------
-
-
+#------------------------------------------------------------
+# content
 #indexing
 indexing_idf_word={}
 for i in range(1,1401):
@@ -457,20 +344,6 @@ for i in range(0,len(body_split)):
     complete_query_tf_idf.append(np.multiply(a,b))
 
 
-def square(list):
-    return map(lambda x: x ** 2, list)
-
-
-def cosineSimilarity(query, doc):
-    up = float(np.dot(query, doc))
-    modQuery = np.sqrt(sum(square(query)))
-    docQuery = np.sqrt(sum(square(doc)))
-    down = float(modQuery * docQuery)
-    if(down==0):
-        down=1
-    return (up / down)
-
-
 complete_list=[]
 for i in range(0,len(body_split)):
     list = []
@@ -486,7 +359,7 @@ for i in range(0,len(complete_list)):
     temp = temp[::-1]
     sub_final_list=[]
     for j in range(0,len(temp)):
-        if complete_list[i][temp[j]]!=0:
+        if complete_list[i][temp[j]]>=0.6:
             sub_final_list.append(temp[j]+1)
     final_list.append(sub_final_list)
 
@@ -500,3 +373,38 @@ with open('your_file2.txt', 'w') as f:
     for item in output:
         f.write("%s\n" % item)
 
+#------------------------------------------------------
+
+#precision
+key=r"C:\Users\alaga\Desktop\sem 2\AIT690\IR1\cranqrel"
+my_output=r"C:\Users\alaga\Desktop\sem 2\AIT690\IR3\your_file2.txt"
+
+key=open(key)
+key=key.read()
+my_output=open(my_output)
+my_output=my_output.read()
+
+key=key.split()
+my_output=my_output.split()
+
+key_dic={}
+my_dict={}
+for i in range(0,len(key),3):
+    if key[i] not in key_dic:
+        key_dic[key[i]]=[]
+        my_dict[key[i]]=[]
+
+for j in range(1,len(key),3):
+    key_dic[key[j-1]].append(key[j])
+
+for j in range(1,len(my_output),2):
+    my_dict[my_output[j-1]].append(my_output[j])
+
+
+
+cnt=0
+for i in (my_dict["1"]):
+    if i in key_dic["1"]:
+        cnt+=1
+
+precision=cnt/len(my_dict["1"])
