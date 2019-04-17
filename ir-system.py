@@ -20,12 +20,12 @@ con_split=content.split()
 from nltk.corpus import stopwords
 stop_words = set(stopwords.words('english'))
 
-tempo= []
+temp= []
 for w in con_split:
     if w not in stop_words:
-        tempo.append(w)
+        temp.append(w)
 
-
+'''
 from nltk.stem import PorterStemmer
 ps = PorterStemmer()
 temp=[]
@@ -34,6 +34,8 @@ for w in tempo:
         temp.append(ps.stem(w))
     else:
         temp.append(w)
+'''
+
 
 cnt=0
 ids=[]
@@ -94,18 +96,21 @@ query=query.replace(".W"," .W ")
 query=query.replace("-"," - ")
 
 que_split=query.split()
-tempo= []
+temp= []
 for w in que_split:
     if w not in stop_words:
-        tempo.append(w)
+        temp.append(w)
 
-
+'''
 temp=[]
 for w in tempo:
     if '.A' not in w:
         temp.append(ps.stem(w))
     else:
         temp.append(w)
+
+'''
+
 cnt=0
 ids=[]
 title=[]
@@ -402,9 +407,23 @@ for j in range(1,len(my_output),2):
 
 
 
-cnt=0
-for i in (my_dict["1"]):
-    if i in key_dic["1"]:
-        cnt+=1
+count_relavant=[]
+len_returned=[]
+i=1
+while(i!=len(key_dic)+1):
+    cnt = 0
+    for j in (my_dict[str(i)]):
+        if j in key_dic[str(i)]:
+            cnt+=1
+    count_relavant.append(cnt)
+    if(len(my_dict[str(i)])==0):
+        len_returned.append(1)
+    else:
+        len_returned.append(len(my_dict[str(i)]))
+    i += 1
 
-precision=cnt/len(my_dict["1"])
+
+
+
+precision=np.mean(np.divide(count_relavant,len_returned))
+
