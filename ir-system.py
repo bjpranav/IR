@@ -95,8 +95,8 @@ Algorithm:
 #Importing necessary libraries
 import numpy as np
 
-#content = r"D:\bin\AIT-690\Assignments\IR\cran.all.1400"
-content = r"C:\Users\alaga\Desktop\sem 2\AIT690\IR1\cran.all.1400"
+content = r"D:\bin\AIT-690\Assignments\IR\cran.all.1400"
+#content = r"C:\Users\alaga\Desktop\sem 2\AIT690\IR1\cran.all.1400"
 
 #Preprocessing docfile to extract index, title and body seperately
 content=open(content)
@@ -114,12 +114,12 @@ con_split=content.split()
 from nltk.corpus import stopwords
 stop_words = set(stopwords.words('english'))
 
-temp= []
+tempo= []
 for w in con_split:
     if w not in stop_words:
-        temp.append(w)
+        tempo.append(w)
 
-'''
+
 from nltk.stem import PorterStemmer
 ps = PorterStemmer()
 temp=[]
@@ -128,7 +128,7 @@ for w in tempo:
         temp.append(ps.stem(w))
     else:
         temp.append(w)
-'''
+
 
 
 cnt=0
@@ -177,10 +177,9 @@ for i in range(0,len(ids)):
     docs[i+1]=[title_split[i],body_split_docs[i]]
 
     
+query = r"D:\bin\AIT-690\Assignments\IR\cran.qry"
 
-#query = r"D:\bin\AIT-690\Assignments\IR\cran.qry"
-
-query = r"C:\Users\alaga\Desktop\sem 2\AIT690\IR1\cran.qry"
+#query = r"C:\Users\alaga\Desktop\sem 2\AIT690\IR1\cran.qry"
 #content = r"C:\Users\alaga\Desktop\sem 2\AIT690\IR1\cran.all.1400"
 
 #Preprocessing queries to extract indexes and body of texts 
@@ -197,7 +196,7 @@ for w in que_split:
     if w not in stop_words:
         temp.append(w)
 
-'''
+
 temp=[]
 for w in tempo:
     if '.A' not in w:
@@ -205,7 +204,7 @@ for w in tempo:
     else:
         temp.append(w)
 
-'''
+
 
 cnt=0
 ids=[]
@@ -260,7 +259,7 @@ def square(list):
 def jaccard_similarity(list1, list2):
     intersection = len(set(list1).intersection(list2))
     union = (len(list1) + len(list2)) - intersection
-    return float(intersection / union)
+    return float(intersection / (union+1))
 
 #The function finds the cosine similarity between queries and documnets
 #@params-query and document
@@ -507,15 +506,15 @@ with open(r'D:\bin\AIT-690\Assignments\IR\jaccard.txt', 'w') as f:
         for i in item:
             f.write(str(index+1)+" "+str(i[0])+"\n")
             
-with open('your_file2.txt', 'w') as f:
+with open(r'D:\bin\AIT-690\Assignments\IR\your_file2.txt', 'w') as f:
     for item in output:
         f.write("%s\n" % item)
 
 #------------------------------------------------------
 
 #precision
-key=r"C:\Users\alaga\Desktop\sem 2\AIT690\IR1\cranqrel"
-my_output=r"C:\Users\alaga\Desktop\sem 2\AIT690\IR3\your_file2.txt"
+key=r"D:\bin\AIT-690\Assignments\IR\cranqrel"
+my_output=r"D:\bin\AIT-690\Assignments\IR\your_file2.txt"
 
 key=open(key)
 key=key.read()
