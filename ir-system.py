@@ -368,14 +368,14 @@ doc_query_idf=[]
 total_jaccard_similarityScore=[]
 #For each query
 for i in body_split:
-    jaccard_similarityScore={}
+    #jaccard_similarityScore={}
     doc_query_word_tf = []
     doc_query_word_idf = []
     #For each document
     for k in range(1, 1401):
         doc_query_word_doc_tf = []
         doc_query_word_doc_idf = []
-        jaccard_similarityScore[k]=jaccard_similarity(i.split(), body_split_docs[k-1].split())
+        #jaccard_similarityScore[k]=jaccard_similarity(i.split(), body_split_docs[k-1].split())
         #For each word in query
         for j in i.split():
             #If the is in the current document
@@ -396,8 +396,8 @@ for i in body_split:
         #Store all the inverse document frequencies of the document in a list
         doc_query_word_idf.append(doc_query_word_doc_idf)
     #Sorts the itmes based on jaccard Similarity Score
-    sorted_x = sorted(jaccard_similarityScore.items(), key=lambda kv: kv[1],reverse=True)
-    total_jaccard_similarityScore.append(sorted_x)
+    #sorted_x = sorted(jaccard_similarityScore.items(), key=lambda kv: kv[1],reverse=True)
+    #total_jaccard_similarityScore.append(sorted_x)
     
     #Stores all the term frequencies of the all the documents in a list 
     doc_query_tf.append(doc_query_word_tf)
@@ -559,10 +559,10 @@ for i in range(0,len(final_list)):
     for j in final_list[i]:
         output.append(str(i+1)+' '+str(j))
 
-with open(r'D:\bin\AIT-690\Assignments\IR\jaccard.txt', 'w') as f:
-    for index,item in enumerate(total_jaccard_similarityScore):
-        for i in item:
-            f.write(str(index+1)+" "+str(i[0])+"\n")
+#with open(r'D:\bin\AIT-690\Assignments\IR\jaccard.txt', 'w') as f:
+    #for index,item in enumerate(total_jaccard_similarityScore):
+        #for i in item:
+            #f.write(str(index+1)+" "+str(i[0])+"\n")
             
 with open(r'D:\bin\AIT-690\Assignments\IR\your_file2.txt', 'w') as f:
     for item in output:
