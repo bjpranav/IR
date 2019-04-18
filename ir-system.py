@@ -2,17 +2,21 @@
 Information retrieval system by team GAP.
 Team members: Ganesh Nalluru, Alagappan Alagappan, Pranav Krishna
 Date: 04/16/2019
+
 Introduction
 --------------
 This program retrievesrelevantt documents for the given query by calculating tf-idf
 vectors for document and queries and by calculating similarity score between them.
+
 Example
 --------
+
 Query:
     .I 001
     .W
     what similarity laws must be obeyed when constructing aeroelastic models
     of heated high speed aircraft .
+
 Documents:
     .I 184
     .T
@@ -54,21 +58,29 @@ Output:
         1           184
     
 (Document length has been shortened for brevity)
+
 Usage Instructions
 ------------------
+
 Windows
 -------
 1.Open cmd prompt, navigate to the location where the python codes are stored along with query
 and document files
+
 2.Run the following command "python ir-system.py.py  cran.all.1400  cran.qry  > cran-output.txt",
 this creates a text file, "cran-output.txt" consists of query indices and relevant documet indices
+
 3.Run the following command "python precision_recall.py cran-output.txt cranqrel,", this compares the result generated
 by the program with the given key .
+
 4.Based on the comparison a file with precision and recall numbers is created with name
 mylogfile.txt.
+
 Linux
 -----
 Follow the same steps as above, instead of command prompt use terminal to run the above commands.
+
+
 Algorithm:
     Extract title, index  and body from the documets
     Preprocess the documents to remove stop words
@@ -76,89 +88,17 @@ Algorithm:
     Find TF of each word in the query
     Find similarity score between query and document
     Store the results with the descending order of similarity score
-    
-
-Stop Words,punctuation and stemming.
------------
-
-Removing stop words and stemming helped us increase the mean average precision wheras removing 
-punctuations surprisingly reduced the mean average precision.
-
-Improvement over the model
-
-We observed that usage of idf affected the model by not taking advantage of context. So we tried
-a model which finds the relevancy between documents by using jaccard similarity which does not
-consider document frequency.
-
-
-
-Jaccard Similarity
--------------------
-
-Jaccard similarity finds a similarity score based on intersecting words between query and the
-document. Unlike cosine similarity, it does not take any type of vectors into account. 
-
-Jaccard similarity is calculated by finding the count of unique words in query which are 
-intersecting with the document divided by the total number ofunique words which are not 
-intersecting with the document.
-
-Jaccard similarity did not give good results as the cosine similarity. The Mean Average Precision
-by jaccard similarity is just 0.11.(The code for finding jaccard similarity is commented out)
-
-Error analysis for jaccard model
----------------------------------
-
-We can understand why our model is failing when we look at the errors. 
-
-Index of the query and number of irrelavant documents returned for that query using both the models
-are given below.(Sorted by queries which retruned most number of irrelavant documets)
-
-Cosine Model 
-[(122, 1385),  
- (152, 589),
- (70, 171),
- (150, 120),
- (64, 116),
- (30, 99),
- (181, 84),
- (182, 83),
- (219, 77),
- (133, 71)]
-
-Jaccard Model
-[(22, 1398),
- (31, 1398),
- (93, 1398),
- (119, 1398),
- (142, 1398),
- (216, 1398),
- (4, 1397),
- (14, 1397),
- (15, 1397),
- (17, 1397)]
-
- We can observe that the jaccard model gives lot of irrelavnt documents even after setting up a 
- significant threshold. This was not the case in the model which finds cosine similarity. This 
- affects of mean average precision score significantly. So this did not solve the purpose we
- intended to solve.
-
-
-
 '''
 
 
 
 #Importing necessary libraries
 import numpy as np
-<<<<<<< HEAD
 import sys
 
 
 content=sys.argv[1]
 query=sys.argv[2]
-=======
-import string
->>>>>>> origin/master
 
 
 #Preprocessing docfile to extract index, title and body seperately
@@ -176,11 +116,10 @@ content=content.replace("-"," - ")
 con_split=content.split()
 from nltk.corpus import stopwords
 stop_words = set(stopwords.words('english'))
-punctuation=set(string.punctuation)
 
 tempo= []
 for w in con_split:
-    if w.lower() not in stop_words:
+    if w not in stop_words:
         tempo.append(w)
 
 from nltk.stem import PorterStemmer
@@ -254,11 +193,7 @@ query=query.replace("-"," - ")
 que_split=query.split()
 tempo= []
 for w in que_split:
-<<<<<<< HEAD
     if w not in stop_words:
-=======
-    if w.lower() not in stop_words:
->>>>>>> origin/master
         tempo.append(w)
 
 
@@ -353,14 +288,14 @@ doc_query_idf=[]
 total_jaccard_similarityScore=[]
 #For each query
 for i in body_split:
-    #jaccard_similarityScore={}
+    jaccard_similarityScore={}
     doc_query_word_tf = []
     doc_query_word_idf = []
     #For each document
     for k in range(1, len(docs)+1):
         doc_query_word_doc_tf = []
         doc_query_word_doc_idf = []
-        #jaccard_similarityScore[k]=jaccard_similarity(i.split(), body_split_docs[k-1].split())
+        jaccard_similarityScore[k]=jaccard_similarity(i.split(), body_split_docs[k-1].split())
         #For each word in query
         for j in i.split():
             #If the is in the current document
@@ -381,8 +316,8 @@ for i in body_split:
         #Store all the inverse document frequencies of the document in a list
         doc_query_word_idf.append(doc_query_word_doc_idf)
     #Sorts the itmes based on jaccard Similarity Score
-    #sorted_x = sorted(jaccard_similarityScore.items(), key=lambda kv: kv[1],reverse=True)
-    #total_jaccard_similarityScore.append(sorted_x)
+    sorted_x = sorted(jaccard_similarityScore.items(), key=lambda kv: kv[1],reverse=True)
+    total_jaccard_similarityScore.append(sorted_x)
     
     #Stores all the term frequencies of the all the documents in a list 
     doc_query_tf.append(doc_query_word_tf)
@@ -451,180 +386,8 @@ with open('cran-output.txt', 'w') as f:
     for item in output:
         f.write("%s\n" % item)
 
-<<<<<<< HEAD
 with open('jaccard.txt', 'w') as f:
     for index, item in enumerate(total_jaccard_similarityScore):
         for i in item:
             f.write(str(index + 1) + " " + str(i[0]) + "\n")
-=======
-#------------------------------------------------------------
-# content
-#indexing
-indexing_idf_word={}
-for i in range(1,1401):
-    x = docs[i][1].split()
-    for j in x:
-        if j not in indexing_idf_word:
-            indexing_idf_word[j]=inverseDocumentFrequency(j, docs)
-
-doc_query_tf=[]
-doc_query_idf=[]
-for i in body_split:
-    doc_query_word_tf = []
-    doc_query_word_idf = []
-    for k in range(1, 1401):
-        doc_query_word_doc_tf = []
-        doc_query_word_doc_idf = []
-        for j in i.split():
-            if j in docs[k][1].split():
-                doc_query_word_doc_tf.append(termFrequency(j, docs[k][1]))
-            else:
-                doc_query_word_doc_tf.append(0)
-
-            if j in indexing_idf_word:
-                doc_query_word_doc_idf.append(indexing_idf_word[j])
-            else:
-                doc_query_word_doc_idf.append(0)
-
-
-        doc_query_word_tf.append(doc_query_word_doc_tf)
-        doc_query_word_idf.append(doc_query_word_doc_idf)
-
-    doc_query_tf.append(doc_query_word_tf)
-    doc_query_idf.append(doc_query_word_idf)
-
-
-
-complete_doc_query_tf_idf=[]
-for i in range(0,len(body_split)):
-    a=doc_query_tf[i]
-    b=doc_query_idf[i]
-    complete_doc_query_tf_idf.append(np.multiply(a,b))
-
-#term frequency of queries
-query_idf=[]
-query_tf=[]
-for i in body_split:
-    query_word_tf=[]
-    query_word_idf = []
-    for j in i.split():
-        query_word_tf.append(termFrequency(j, i))
-        if j in indexing_idf_word:
-            query_word_idf.append(indexing_idf_word[j])
-        else:
-            query_word_idf.append(0)
-
-    query_idf.append(query_word_idf)
-    query_tf.append(query_word_tf)
-
-
-complete_query_tf_idf=[]
-for i in range(0,len(body_split)):
-    a=query_tf[i]
-    b=query_idf[i]
-    complete_query_tf_idf.append(np.multiply(a,b))
-
-
-complete_list=[]
-for i in range(0,len(body_split)):
-    list = []
-    for k in range(0, 1400):
-        x=cosineSimilarity(complete_query_tf_idf[i],complete_doc_query_tf_idf[i][k])
-        list.append(x)
-    complete_list.append(list)
-
-
-final_list=[]
-for i in range(0,len(complete_list)):
-    temp = np.argsort(complete_list[i])
-    temp = temp[::-1]
-    sub_final_list=[]
-    for j in range(0,len(temp)):
-        if complete_list[i][temp[j]]>=0.65:
-            sub_final_list.append(temp[j]+1)
-    final_list.append(sub_final_list)
-
-output=[]
-for i in range(0,len(final_list)):
-    for j in final_list[i]:
-        output.append(str(i+1)+' '+str(j))
-
-#with open(r'D:\bin\AIT-690\Assignments\IR\jaccard.txt', 'w') as f:
-    #for index,item in enumerate(total_jaccard_similarityScore):
-        #for i in item:
-            #f.write(str(index+1)+" "+str(i[0])+"\n")
-            
-with open(r'D:\bin\AIT-690\Assignments\IR\your_file2.txt', 'w') as f:
-    for item in output:
-        f.write("%s\n" % item)
-
-#------------------------------------------------------
-
-#precision
-key=r"D:\bin\AIT-690\Assignments\IR\cranqrel"
-my_output=r"D:\bin\AIT-690\Assignments\IR\your_file2.txt"
-
-key=open(key)
-key=key.read()
-my_output=open(my_output)
-my_output=my_output.read()
-
-key=key.split()
-my_output=my_output.split()
-
-key_dic={}
-my_dict={}
-for i in range(0,len(key),3):
-    if key[i] not in key_dic:
-        key_dic[key[i]]=[]
-        my_dict[key[i]]=[]
-
-for j in range(1,len(key),3):
-    key_dic[key[j-1]].append(key[j])
-
-for j in range(1,len(my_output),2):
-    my_dict[my_output[j-1]].append(my_output[j])
-
-relevant_documents=[]
-total_documents_returned =[]
-documents_collection=[]
-i=1
-while(i!=len(key_dic)+1):
-    cnt = 0
-    for j in (my_dict[str(i)]):
-        if j in key_dic[str(i)]:
-            cnt+=1
-    relevant_documents.append(cnt)
-    if(len(my_dict[str(i)])==0):
-        total_documents_returned.append(1)
-    else:
-        total_documents_returned.append(len(my_dict[str(i)]))
-    documents_collection.append(len(key_dic[str(i)]))
-
-    i += 1
-
-
-precision=np.mean(np.divide(relevant_documents,total_documents_returned))
-recall=np.mean(np.divide(relevant_documents,documents_collection))
-
-f1_score=2*((precision*recall)/(precision+recall))
-print(f1_score)
-
-
-# Mean Average Precision
-mean_average_pre=[]
-i=1
-while(i!=len(key_dic)+1):
-    temp = []
-    for k in range(0, len(key_dic[str(i)])):
-        for j in range(0, len(my_dict[str(i)])):
-            if my_dict[str(i)][j] == key_dic[str(i)][k] and j >= k:
-                a = (k + 1) / (j + 1)
-                temp.append(a)
-    if(len(temp)==0):
-        mean_average_pre.append(0)
-    else:
-        mean_average_pre.append(np.mean(temp))
-    i+=1
->>>>>>> origin/master
 
