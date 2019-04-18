@@ -4,7 +4,7 @@ Team members: Ganesh Nalluru, Alagappan Alagappan, Pranav Krishna
 Date: 04/16/2019
 Introduction
 --------------
-This program retrives relavant documents for the given query by calculating tf-idf
+This program retrievesrelevantt documents for the given query by calculating tf-idf
 vectors for document and queries and by calculating similarity score between them.
 Example
 --------
@@ -150,10 +150,16 @@ Jaccard Model
 
 #Importing necessary libraries
 import numpy as np
-import string
+<<<<<<< HEAD
+import sys
 
-content = r"D:\bin\AIT-690\Assignments\IR\cran.all.1400"
-#content = r"C:\Users\alaga\Desktop\sem 2\AIT690\IR1\cran.all.1400"
+
+content=sys.argv[1]
+query=sys.argv[2]
+=======
+import string
+>>>>>>> origin/master
+
 
 #Preprocessing docfile to extract index, title and body seperately
 content=open(content)
@@ -177,7 +183,6 @@ for w in con_split:
     if w.lower() not in stop_words:
         tempo.append(w)
 
-
 from nltk.stem import PorterStemmer
 ps = PorterStemmer()
 temp=[]
@@ -186,7 +191,6 @@ for w in tempo:
         temp.append(ps.stem(w))
     else:
         temp.append(w)
-
 
 
 cnt=0
@@ -235,10 +239,9 @@ for i in range(0,len(ids)):
     docs[i+1]=[title_split[i],body_split_docs[i]]
 
     
-query = r"D:\bin\AIT-690\Assignments\IR\cran.qry"
+#query = r"D:\bin\AIT-690\Assignments\IR\cran.qry"
 
 #query = r"C:\Users\alaga\Desktop\sem 2\AIT690\IR1\cran.qry"
-#content = r"C:\Users\alaga\Desktop\sem 2\AIT690\IR1\cran.all.1400"
 
 #Preprocessing queries to extract indexes and body of texts 
 query=open(query)
@@ -251,18 +254,21 @@ query=query.replace("-"," - ")
 que_split=query.split()
 tempo= []
 for w in que_split:
+<<<<<<< HEAD
+    if w not in stop_words:
+=======
     if w.lower() not in stop_words:
+>>>>>>> origin/master
         tempo.append(w)
 
 
+ps = PorterStemmer()
 temp=[]
 for w in tempo:
     if '.A' not in w:
         temp.append(ps.stem(w))
     else:
         temp.append(w)
-
-
 
 cnt=0
 ids=[]
@@ -331,37 +337,16 @@ def cosineSimilarity(query, doc):
         down=1
     return (up / down)
 
-#-------------------------------------------------
+
 # content_title
-#document tf and idf
-complete_tf=[]
-complete_idf=[]
-for i in range(1,1401):
-    x=docs[i][0].split()
-    tf = []
-    idf=[]
-    for j in x:
-        tf.append(termFrequency(j, docs[i][0]))
-        idf.append(inverseDocumentFrequency(j, docs))
-
-    complete_tf.append(tf)
-    complete_idf.append(idf)
-
-#indexing
+# indexing the idfs
 indexing_idf_word={}
-for i in range(1,1401):
-    x = docs[i][0].split()
+len(ids)
+for i in range(1,len(docs)+1):
+    x = docs[i][1].split()
     for j in x:
         if j not in indexing_idf_word:
             indexing_idf_word[j]=inverseDocumentFrequency(j, docs)
-
-#doc_tf_idf
-complete_doc_tf_idf=[]
-for i in range(0,1400):
-    a=complete_tf[i]
-    b=complete_idf[i]
-    complete_doc_tf_idf.append(np.multiply(a,b))
-
 
 doc_query_tf=[]
 doc_query_idf=[]
@@ -372,16 +357,16 @@ for i in body_split:
     doc_query_word_tf = []
     doc_query_word_idf = []
     #For each document
-    for k in range(1, 1401):
+    for k in range(1, len(docs)+1):
         doc_query_word_doc_tf = []
         doc_query_word_doc_idf = []
         #jaccard_similarityScore[k]=jaccard_similarity(i.split(), body_split_docs[k-1].split())
         #For each word in query
         for j in i.split():
             #If the is in the current document
-            if j in docs[k][0].split():
+            if j in docs[k][1].split():
                 #Find and append the term frequency of the word in document to the list
-                doc_query_word_doc_tf.append(termFrequency(j, docs[k][0]))
+                doc_query_word_doc_tf.append(termFrequency(j, docs[k][1]))
             else:
                 doc_query_word_doc_tf.append(0)
                 #If the documnt has an Idf
@@ -441,32 +426,37 @@ for i in range(0,len(body_split)):
 complete_list=[]
 for i in range(0,len(body_split)):
     list = []
-    for k in range(0, 1400):
+    for k in range(0, len(docs)):
         x=cosineSimilarity(complete_query_tf_idf[i],complete_doc_query_tf_idf[i][k])
         list.append(x)
     complete_list.append(list)
 
 #Sorts the cosine simalrity and finds the ranking of all the documents for each query
-final_list=[]
-for i in range(0,len(complete_list)):
+final_list = []
+for i in range(0, len(complete_list)):
     temp = np.argsort(complete_list[i])
     temp = temp[::-1]
-    sub_final_list=[]
-    for j in range(0,len(temp)):
-        if complete_list[i][temp[j]]!=0:
-            sub_final_list.append(temp[j]+1)
+    sub_final_list = []
+    for j in range(0, len(temp)):
+        if complete_list[i][temp[j]] >= 0.55:
+            sub_final_list.append(temp[j] + 1)
     final_list.append(sub_final_list)
 
-output=[]
-for i in range(0,len(final_list)):
+output = []
+for i in range(0, len(final_list)):
     for j in final_list[i]:
-        output.append(str(i+1)+' '+str(j))
+        output.append(str(i + 1) + ' ' + str(j))
 
-
-with open('your_file.txt', 'w') as f:
+with open('cran-output.txt', 'w') as f:
     for item in output:
         f.write("%s\n" % item)
 
+<<<<<<< HEAD
+with open('jaccard.txt', 'w') as f:
+    for index, item in enumerate(total_jaccard_similarityScore):
+        for i in item:
+            f.write(str(index + 1) + " " + str(i[0]) + "\n")
+=======
 #------------------------------------------------------------
 # content
 #indexing
@@ -636,5 +626,5 @@ while(i!=len(key_dic)+1):
     else:
         mean_average_pre.append(np.mean(temp))
     i+=1
+>>>>>>> origin/master
 
-np.mean(mean_average_pre)
