@@ -8,7 +8,7 @@ vectors for document and queries and by calculating similarity score between the
 
 Example
 --------
-Query:-
+Query:
 
     .I 001
     .W
@@ -16,6 +16,7 @@ Query:-
     of heated high speed aircraft .
     
 Documents:
+
     .I 184
     .T
     scale models for thermo-aeroelastic research .
