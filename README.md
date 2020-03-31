@@ -1,17 +1,20 @@
-'''
 Information retrieval system by team GAP.
+--------------
+
 
 Introduction
---------------
 This program retrives relavant documents for the given query by calculating tf-idf
 vectors for document and queries and by calculating similarity score between them.
+
 Example
 --------
-Query:
+Query:-
+
     .I 001
     .W
     what similarity laws must be obeyed when constructing aeroelastic models
     of heated high speed aircraft .
+    
 Documents:
     .I 184
     .T
